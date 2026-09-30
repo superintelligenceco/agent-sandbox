@@ -1,0 +1,43 @@
+name: Bug report
+description: Report something that does not work as documented.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the report. For security problems, don't open an issue. Follow [SECURITY.md](https://github.com/superintelligenceco/agent-sandbox/blob/main/SECURITY.md) instead.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: Describe the behavior you saw and what you expected instead.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      description: The smallest sequence of API calls, SDK code, or MCP tool calls that shows the problem.
+      render: shell
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Server logs
+      description: Relevant output from `docker compose logs` or `agent-sandbox serve`. Remove API keys first.
+      render: text
+  - type: input
+    id: version
+    attributes:
+      label: agent-sandbox version
+      placeholder: "0.1.0"
+    validations:
+      required: true
+  - type: input
+    id: docker
+    attributes:
+      label: Docker version and host OS
+      placeholder: "Docker 27.3.1 on Ubuntu 24.04, x86_64"
+    validations:
+      required: true
