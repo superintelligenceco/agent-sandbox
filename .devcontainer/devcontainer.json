@@ -1,0 +1,28 @@
+{
+  "name": "agent-sandbox",
+  "image": "mcr.microsoft.com/devcontainers/python:3.12",
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {}
+  },
+  "postCreateCommand": "python -m pip install -U pip && python -m pip install -e '.[dev,docs]' && pre-commit install",
+  "forwardPorts": [8080, 8000],
+  "portsAttributes": {
+    "8080": { "label": "agent-sandbox API" },
+    "8000": { "label": "docs (mkdocs serve)" }
+  },
+  "containerEnv": {
+    "AGENT_SANDBOX_API_KEYS": "dev-only-key-0123456789abcdef",
+    "AGENT_SANDBOX_API_KEY": "dev-only-key-0123456789abcdef"
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-python.mypy-type-checker",
+        "charliermarsh.ruff",
+        "redhat.vscode-yaml",
+        "github.vscode-github-actions"
+      ]
+    }
+  }
+}
