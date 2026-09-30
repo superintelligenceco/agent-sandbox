@@ -4,7 +4,11 @@
 
 [![CI](https://github.com/superintelligenceco/agent-sandbox/actions/workflows/ci.yml/badge.svg)](https://github.com/superintelligenceco/agent-sandbox/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/superintelligenceco/agent-sandbox/actions/workflows/codeql.yml/badge.svg)](https://github.com/superintelligenceco/agent-sandbox/actions/workflows/codeql.yml)
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/superintelligenceco/agent-sandbox/badge)](https://scorecard.dev/viewer/?uri=github.com/superintelligenceco/agent-sandbox)
+[![PyPI](https://img.shields.io/pypi/v/sic-agent-sandbox.svg)](https://pypi.org/project/sic-agent-sandbox/)
+[![Docs](https://img.shields.io/badge/docs-GitHub%20Pages-blue.svg)](https://superintelligenceco.github.io/agent-sandbox/)
 [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/superintelligenceco/agent-sandbox)
 
 You give an agent a sandbox. The agent writes files, runs commands, and streams
 the output. Before it tries something risky, it takes a snapshot. When the attempt
@@ -16,18 +20,46 @@ agent-sandbox is a small Python server with a REST API, a Python SDK, and an MCP
 server. It runs on any Linux host with Docker, and your code never leaves your
 infrastructure.
 
+![A terminal session that creates a sandbox, runs code, snapshots, breaks the workspace, rolls back, and destroys the sandbox](docs/assets/demo.gif)
+
+The [documentation site](https://superintelligenceco.github.io/agent-sandbox/)
+has a quickstart, concepts, the architecture, references, and an FAQ.
+
 ## Install
 
-Each release ships a multi-arch server image (`linux/amd64` and `linux/arm64`)
-on GHCR, a Docker Compose file that runs it, and a wheel and sdist for the Python
-SDK and the `agent-sandbox-mcp` command.
+Install the standalone `agent-sandbox` executable for your OS and CPU:
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/superintelligenceco/agent-sandbox/main/install.sh | sh
+```
+
+The script checks the download against the release's `SHA256SUMS` and installs
+it into `~/.local/bin`. Set `AGENT_SANDBOX_VERSION=v0.2.0` to pin a release, or
+`AGENT_SANDBOX_INSTALL=compose` to download the Compose file, write an API key,
+and start the server image instead. Then start the server with
+`AGENT_SANDBOX_API_KEYS=$(openssl rand -hex 24) agent-sandbox serve`. Your user
+needs access to the Docker socket.
+
+Or install the Python package from PyPI. The distribution is
+`sic-agent-sandbox`; the import package and the commands keep the
+`agent_sandbox` and `agent-sandbox` names:
+
+```sh
+pip install "sic-agent-sandbox[server,mcp]"
+```
+
+Each release ships these files:
 
 | Artifact | Where |
 | --- | --- |
-| Server image | `ghcr.io/superintelligenceco/agent-sandbox:vX.Y.Z`, `:latest` (newest release), `:edge` (newest manual build of `main`) |
-| Compose file | `docker-compose.yml` on the [latest release](https://github.com/superintelligenceco/agent-sandbox/releases/latest) |
-| Python package | `agent_sandbox-X.Y.Z-py3-none-any.whl` and `agent_sandbox-X.Y.Z.tar.gz` on the release |
-| Checksums | `SHA256SUMS` on the release |
+| Executables | `agent-sandbox-linux-x86_64`, `agent-sandbox-linux-aarch64`, `agent-sandbox-macos-arm64`, and `agent-sandbox-windows-x86_64.exe` on the [latest release](https://github.com/superintelligenceco/agent-sandbox/releases/latest) |
+| Server image | `ghcr.io/superintelligenceco/agent-sandbox:vX.Y.Z`, `:latest` (newest release), `:edge` (newest manual build of `main`), for `linux/amd64` and `linux/arm64`, signed with cosign |
+| Compose file | `docker-compose.yml` on the release, pinned to the release's image |
+| Python package | [`sic-agent-sandbox` on PyPI](https://pypi.org/project/sic-agent-sandbox/), plus the wheel and sdist on the release |
+| Supply chain | `SHA256SUMS`, SPDX SBOMs of the package and the image, and build provenance attestations |
+
+Verify a downloaded file with
+`gh attestation verify <file> -R superintelligenceco/agent-sandbox`.
 
 ### Run the server with Docker Compose
 
@@ -57,10 +89,8 @@ docker run -d --name agent-sandbox -u 0:0 -p 127.0.0.1:8080:8080 \
 
 ### Install the Python SDK and MCP server
 
-Install the wheel from a release, replacing `X.Y.Z` with the version:
-
 ```sh
-pip install "agent-sandbox[mcp] @ https://github.com/superintelligenceco/agent-sandbox/releases/download/vX.Y.Z/agent_sandbox-X.Y.Z-py3-none-any.whl"
+pip install "sic-agent-sandbox[mcp]"
 agent-sandbox-mcp   # MCP server over stdio
 ```
 
@@ -130,7 +160,7 @@ $ sb -X DELETE -o /dev/null -w "%{http_code}\n" $API/sandboxes/$SB
 ### The same thing from Python
 
 ```sh
-pip install "$(ls agent_sandbox-*.whl)"   # see Install
+pip install sic-agent-sandbox
 export AGENT_SANDBOX_URL=http://localhost:8080
 ```
 
@@ -167,7 +197,7 @@ the results.
 
 ### From an MCP client
 
-Install the wheel with the `mcp` extra (see [Install](#install)) and point your
+Install the package with the `mcp` extra (see [Install](#install)) and point your
 MCP client at the `agent-sandbox-mcp` command. It speaks MCP over stdio.
 
 ```json
@@ -361,16 +391,21 @@ tar into the new workspace. Fork does the same into a new sandbox ID.
 
 ## Development
 
+Open the repository in a GitHub Codespace, or in the dev container in
+`.devcontainer/`, to get Python, Docker, and every dependency installed. On
+your own machine:
+
 ```sh
-python3 -m venv .venv && . .venv/bin/activate
-pip install -e ".[dev]"
-ruff check . && ruff format --check . && mypy
-pytest tests/unit          # fast, no Docker needed
-pytest tests/integration   # needs a Docker daemon you can reach
+make setup            # create .venv and install the dev and docs extras
+. .venv/bin/activate
+pre-commit install    # run the CI linters on every commit
+make lint typecheck test
+make test-integration # needs a Docker daemon you can reach
+make docs             # build the documentation site into site/
 agent-sandbox openapi -o docs/openapi.json   # after any API change
 ```
 
-Run the server from source with
+Run `make` to list every target. Run the server from source with
 `AGENT_SANDBOX_API_KEYS=<key> agent-sandbox serve`.
 
 ## Roadmap

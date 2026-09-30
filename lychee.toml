@@ -14,4 +14,6 @@ exclude = [
   '/security/advisories/new',
   # GitHub rate-limits and blocks some anonymous checks.
   '^https://github\.com/[^/]+/[^/]+/(compare|edit|new)/',
+  # Codespaces redirects anonymous requests to a sign-in page.
+  '^https://codespaces\.new/',
 ]
