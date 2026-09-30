@@ -36,3 +36,4 @@ data/
 bench.json
 site/
 mutants/
+dist-exe/
