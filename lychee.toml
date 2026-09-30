@@ -1,0 +1,17 @@
+# Link checker settings for .github/workflows/links.yml.
+max_retries = 3
+retry_wait_time = 5
+timeout = 30
+accept = ["200..=299", "429"]
+exclude_path = ["CHANGELOG.md", ".venv", "site", "mutants"]
+exclude = [
+  # Local servers that only exist while you follow the docs.
+  '^https?://(localhost|127\.0\.0\.1)',
+  # Placeholders and links that exist only after a release.
+  'vX\.Y\.Z',
+  '/releases/latest',
+  '/releases/download/',
+  '/security/advisories/new',
+  # GitHub rate-limits and blocks some anonymous checks.
+  '^https://github\.com/[^/]+/[^/]+/(compare|edit|new)/',
+]
