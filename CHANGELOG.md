@@ -6,14 +6,37 @@ project uses [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-09-30
+
+This release makes the server something you download and run: a signed
+multi-arch image on GHCR, a Compose quickstart, standalone executables, an
+install script, and a PyPI package.
+
 ### Added
 
 - Multi-arch server image (`linux/amd64`, `linux/arm64`) on
   `ghcr.io/superintelligenceco/agent-sandbox`, tagged `vX.Y.Z` and `latest` on
-  releases and `edge` on manual builds of `main`.
-- Release assets: the wheel and sdist for the SDK and `agent-sandbox-mcp`, a
-  Docker Compose file pinned to the release's image, and `SHA256SUMS`.
+  releases and `edge` on manual builds of `main`. Releases sign the image with
+  cosign keyless signing and attach build provenance and an SPDX SBOM.
+- Standalone `agent-sandbox` executables for Linux (x86_64, aarch64), macOS
+  (arm64), and Windows (x86_64), built with PyInstaller.
+- `install.sh`, which you run with `curl -fsSL ... | sh` to install the
+  executable or the Docker Compose stack.
+- PyPI package `sic-agent-sandbox`. The import name stays `agent_sandbox`.
+- Release assets: the wheel and sdist, the executables, a Docker Compose file
+  pinned to the release's image, the install script, SBOMs, and `SHA256SUMS`,
+  all with build provenance attestations.
 - `docker-compose.build.yml` override that builds the image from a checkout.
+- Documentation site on GitHub Pages with a quickstart, concepts, a Mermaid
+  architecture diagram, a FAQ, architecture decision records, and a recorded
+  demo.
+- Property-based tests with Hypothesis, a test that runs the README example,
+  hot-path benchmarks with a 2x regression gate, weekly mutation testing with
+  mutmut, and a nightly full-suite run.
+- Workflows for actionlint, Trivy image scans, OpenSSF Scorecard, dependency
+  review, and Markdown link checks.
+- Makefile, pre-commit hooks, a dev container with a Codespaces badge, VS Code
+  workspace settings, `CITATION.cff`, and `llms.txt`.
 
 ### Changed
 
@@ -23,8 +46,8 @@ project uses [Semantic Versioning](https://semver.org/).
 
 ### Fixed
 
-- CodeQL runs on a private repository without GitHub Advanced Security and keeps
-  its SARIF results as a run artifact.
+- CodeQL runs on a repository without GitHub Advanced Security and keeps its
+  SARIF results as a run artifact.
 
 ## [0.1.0] - 2026-09-30
 
@@ -63,5 +86,6 @@ backend, a Python SDK, and an MCP server.
 - Snapshots capture `/workspace` only, not memory, processes, or `/tmp`.
 - Every API key can see and control every sandbox.
 
-[Unreleased]: https://github.com/superintelligenceco/agent-sandbox/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/superintelligenceco/agent-sandbox/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/superintelligenceco/agent-sandbox/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/superintelligenceco/agent-sandbox/releases/tag/v0.1.0
