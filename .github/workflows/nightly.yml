@@ -1,0 +1,69 @@
+name: Nightly
+
+# The full suite, every night, against the newest dependency versions that the
+# pyproject.toml ranges allow: unit tests on every supported Python, the Docker
+# integration tests with extra Hypothesis examples, and the Compose smoke test.
+
+on:
+  schedule:
+    - cron: "30 2 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  full:
+    name: Full suite (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
+        with:
+          python-version: ${{ matrix.python-version }}
+      - run: python -m pip install --upgrade -e ".[dev]"
+      - run: docker pull alpine:3.20
+      - name: Unit, property, integration, and benchmark tests
+        run: pytest tests --hypothesis-profile=nightly --cov=agent_sandbox --cov-report=term --cov-report=markdown:coverage.md
+        env:
+          AGENT_SANDBOX_TEST_IMAGE: alpine:3.20
+      - run: cat coverage.md >> "$GITHUB_STEP_SUMMARY"
+
+  compose:
+    name: Docker Compose from a clean build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Build without cache and start the stack
+        run: |
+          docker compose -f docker-compose.yml -f docker-compose.build.yml build --no-cache --pull
+          docker compose -f docker-compose.yml -f docker-compose.build.yml up -d --wait
+        env:
+          AGENT_SANDBOX_API_KEY: ci-only-key-0123456789abcdef
+          AGENT_SANDBOX_DEFAULT_IMAGE: alpine:3.20
+      - name: Run examples/quickstart.py against the stack
+        run: |
+          python3 -m venv /tmp/venv
+          /tmp/venv/bin/pip install .
+          /tmp/venv/bin/python examples/quickstart.py
+        env:
+          AGENT_SANDBOX_URL: http://localhost:8080
+          AGENT_SANDBOX_API_KEY: ci-only-key-0123456789abcdef
+      - name: Show logs
+        if: failure()
+        run: docker compose logs
+        env:
+          AGENT_SANDBOX_API_KEY: unused-0123456789abcdef
+      - name: Tear down
+        if: always()
+        run: docker compose down -v
+        env:
+          AGENT_SANDBOX_API_KEY: unused-0123456789abcdef

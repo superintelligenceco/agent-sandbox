@@ -5,6 +5,7 @@ from pathlib import Path
 
 import pytest
 from fastapi.testclient import TestClient
+from hypothesis import settings as hypothesis_settings
 
 from agent_sandbox.api import create_app
 from agent_sandbox.config import Settings
@@ -12,6 +13,9 @@ from agent_sandbox.manager import SandboxManager
 from tests.fakes import FakeBackend
 
 API_KEY = "test-key-0123456789abcdef"
+
+# `pytest --hypothesis-profile=nightly` runs far more examples per property.
+hypothesis_settings.register_profile("nightly", max_examples=2_000, deadline=None)
 
 
 class FakeClock:
