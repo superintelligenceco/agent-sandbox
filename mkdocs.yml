@@ -1,0 +1,76 @@
+site_name: agent-sandbox
+site_description: Self-hostable disposable sandboxes for AI agents, with snapshot, rollback, and fork.
+site_url: https://superintelligenceco.github.io/agent-sandbox/
+repo_url: https://github.com/superintelligenceco/agent-sandbox
+repo_name: superintelligenceco/agent-sandbox
+edit_uri: edit/main/docs/
+copyright: Apache-2.0
+
+theme:
+  name: material
+  features:
+    - content.code.copy
+    - navigation.sections
+    - navigation.top
+    - search.suggest
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.highlight
+  - pymdownx.inlinehilite
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [src]
+          options:
+            show_source: false
+            show_root_heading: true
+            members_order: source
+            docstring_style: sphinx
+
+exclude_docs: |
+  openapi.json
+
+nav:
+  - Home: index.md
+  - Quickstart: quickstart.md
+  - Concepts: concepts.md
+  - Architecture: architecture.md
+  - Reference:
+      - CLI: cli.md
+      - REST API: rest-api.md
+      - Python SDK: python-sdk.md
+      - Configuration: configuration.md
+  - Backends: backends.md
+  - FAQ: faq.md
+  - Decisions:
+      - adr/index.md
+      - adr/0001-docker-first-behind-a-backend-interface.md
+      - adr/0002-snapshots-are-workspace-tarballs.md
+      - adr/0003-flat-api-keys.md
+      - adr/0004-tag-driven-releases.md
