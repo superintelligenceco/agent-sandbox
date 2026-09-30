@@ -1,0 +1,38 @@
+# Mirrors the lint job in .github/workflows/ci.yml and the actionlint job.
+# Install with `pre-commit install`, run everything with `pre-commit run -a`.
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: 3e8a8703264a2f4a69428a0aa4dcb512790b2c8c # frozen: v6.0.0
+    hooks:
+      - id: check-yaml
+        args: [--unsafe] # mkdocs.yml uses a !!python/name tag
+      - id: check-toml
+      - id: check-json
+      - id: end-of-file-fixer
+        exclude: ^docs/openapi\.json$
+      - id: trailing-whitespace
+      - id: check-added-large-files
+        args: [--maxkb=2048]
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: a56c0b927e6465d37cae3e97d35d4d18ab2b96cd # frozen: v0.16.9
+    hooks:
+      - id: ruff-check
+      - id: ruff-format
+  - repo: https://github.com/rhysd/actionlint
+    rev: 914e7df21a07ef503a81201c76d2b11c789d3fca # frozen: v1.7.12
+    hooks:
+      - id: actionlint
+  - repo: local
+    hooks:
+      - id: mypy
+        name: mypy (strict)
+        entry: mypy
+        language: system
+        types: [python]
+        pass_filenames: false
+      - id: openapi
+        name: docs/openapi.json is current
+        entry: sh -c 'agent-sandbox openapi | diff -u docs/openapi.json -'
+        language: system
+        files: ^(src/|docs/openapi\.json$)
+        pass_filenames: false

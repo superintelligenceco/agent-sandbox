@@ -37,3 +37,5 @@ bench.json
 site/
 mutants/
 dist-exe/
+.hypothesis/
+.benchmarks/
