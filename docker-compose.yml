@@ -1,0 +1,32 @@
+# Quickstart:
+#   export AGENT_SANDBOX_API_KEY=$(openssl rand -hex 24)
+#   docker compose up -d --build
+#
+# The server drives the host's Docker daemon through its socket, so it runs as
+# root inside its own container. Anyone who controls this server controls the
+# Docker host. Keep the port on localhost or behind TLS and authentication.
+services:
+  agent-sandbox:
+    build: .
+    image: agent-sandbox:local
+    user: "0:0"
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${AGENT_SANDBOX_PORT:-8080}:8080"
+    environment:
+      AGENT_SANDBOX_API_KEYS: ${AGENT_SANDBOX_API_KEY:?set AGENT_SANDBOX_API_KEY to a random string of 16 or more characters}
+      AGENT_SANDBOX_DEFAULT_IMAGE: ${AGENT_SANDBOX_DEFAULT_IMAGE:-python:3.12-slim}
+      AGENT_SANDBOX_MAX_SANDBOXES: ${AGENT_SANDBOX_MAX_SANDBOXES:-20}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - agent-sandbox-data:/data
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+
+volumes:
+  agent-sandbox-data:
