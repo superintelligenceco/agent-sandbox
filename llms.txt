@@ -1,0 +1,30 @@
+# agent-sandbox
+
+> Self-hostable, disposable sandboxes where AI agents run code, with snapshot, rollback, and fork. A Python server with a REST API, a Python SDK (`agent_sandbox.client`, depends only on httpx), and an MCP server (`agent-sandbox-mcp`), running hardened Docker containers on your own Linux host. Install with `pip install sic-agent-sandbox`, the `install.sh` script, or the `ghcr.io/superintelligenceco/agent-sandbox` image.
+
+## Docs
+
+- [README](https://github.com/superintelligenceco/agent-sandbox/blob/main/README.md): overview, install, API overview, security model
+- [Documentation site](https://superintelligenceco.github.io/agent-sandbox/): quickstart, concepts, architecture, references, FAQ
+- [Quickstart](https://superintelligenceco.github.io/agent-sandbox/quickstart/): install the server and run a first sandbox
+- [Concepts and security model](https://superintelligenceco.github.io/agent-sandbox/concepts/)
+- [OpenAPI 3.1 spec](https://raw.githubusercontent.com/superintelligenceco/agent-sandbox/main/docs/openapi.json): every REST route and schema
+- [Backends](https://github.com/superintelligenceco/agent-sandbox/blob/main/docs/backends.md): the backend contract and the Docker implementation
+- [Decision records](https://github.com/superintelligenceco/agent-sandbox/tree/main/docs/adr)
+- [CHANGELOG](https://github.com/superintelligenceco/agent-sandbox/blob/main/CHANGELOG.md)
+- [AGENTS.md](https://github.com/superintelligenceco/agent-sandbox/blob/main/AGENTS.md): layout, commands, and rules for contributors
+
+## Source
+
+- [api.py](https://github.com/superintelligenceco/agent-sandbox/blob/main/src/agent_sandbox/api.py): FastAPI routes, auth, NDJSON streaming
+- [manager.py](https://github.com/superintelligenceco/agent-sandbox/blob/main/src/agent_sandbox/manager.py): lifecycle, quotas, TTL reaping, snapshots
+- [backends/base.py](https://github.com/superintelligenceco/agent-sandbox/blob/main/src/agent_sandbox/backends/base.py): the Backend interface
+- [backends/docker.py](https://github.com/superintelligenceco/agent-sandbox/blob/main/src/agent_sandbox/backends/docker.py): hardened Docker backend
+- [client.py](https://github.com/superintelligenceco/agent-sandbox/blob/main/src/agent_sandbox/client.py): Python SDK
+- [mcp_server.py](https://github.com/superintelligenceco/agent-sandbox/blob/main/src/agent_sandbox/mcp_server.py): MCP tools
+- [config.py](https://github.com/superintelligenceco/agent-sandbox/blob/main/src/agent_sandbox/config.py): every AGENT_SANDBOX_* setting
+
+## Optional
+
+- [examples/quickstart.py](https://github.com/superintelligenceco/agent-sandbox/blob/main/examples/quickstart.py)
+- [examples/parallel_forks.py](https://github.com/superintelligenceco/agent-sandbox/blob/main/examples/parallel_forks.py)

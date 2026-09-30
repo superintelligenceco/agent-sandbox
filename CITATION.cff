@@ -1,0 +1,22 @@
+cff-version: 1.2.0
+message: If you use agent-sandbox in your work, cite it with these metadata.
+title: agent-sandbox
+abstract: >-
+  Self-hostable disposable sandboxes for AI agents, with snapshot, rollback,
+  and fork. A REST API, a Python SDK, and an MCP server over hardened Docker
+  containers.
+type: software
+authors:
+  - name: superintelligenceco contributors
+repository-code: https://github.com/superintelligenceco/agent-sandbox
+url: https://superintelligenceco.github.io/agent-sandbox/
+license: Apache-2.0
+version: 0.2.0
+date-released: "2026-09-30"
+keywords:
+  - sandbox
+  - ai-agents
+  - code-execution
+  - docker
+  - mcp
+  - snapshot
