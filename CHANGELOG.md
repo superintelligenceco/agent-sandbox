@@ -4,6 +4,25 @@ All notable changes to this project are documented in this file. The format
 follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the
 project uses [Semantic Versioning](https://semver.org/).
 
+## [0.2.0](https://github.com/superintelligenceco/agent-sandbox/compare/agent-sandbox-v0.1.0...agent-sandbox-v0.2.0) (2026-09-30)
+
+
+### Features
+
+* add settings, error types, and API key auth ([66bf5d2](https://github.com/superintelligenceco/agent-sandbox/commit/66bf5d29c7b8ba3a9db0d01dd4fc6e74f836e47c))
+* **api:** add REST API, OpenAPI models, and server CLI ([77e7750](https://github.com/superintelligenceco/agent-sandbox/commit/77e77509c674c973aaa0464e506b88f926ca23a9))
+* **backends:** define the isolation backend interface ([ffe5c45](https://github.com/superintelligenceco/agent-sandbox/commit/ffe5c45025096a23763d110cf30de0187d178c0d))
+* **client:** add Python SDK ([029e29d](https://github.com/superintelligenceco/agent-sandbox/commit/029e29d73876c8dfd2deb17f66823bcede18d45c))
+* **docker:** add hardened Docker backend ([5e0e653](https://github.com/superintelligenceco/agent-sandbox/commit/5e0e653c1d9402c6b470d68dd2d391ae7abcd682))
+* **manager:** add sandbox lifecycle, quotas, TTL reaping, and snapshots ([3437c83](https://github.com/superintelligenceco/agent-sandbox/commit/3437c8314f3cb38abbf3abebc0c3268a09ef5c93))
+* **mcp:** expose sandboxes as MCP tools ([f416016](https://github.com/superintelligenceco/agent-sandbox/commit/f416016cf5657c5cae373f3a48c4da6df50f127c))
+
+
+### Documentation
+
+* add contributing guide, security policy, and community files ([f35b4ff](https://github.com/superintelligenceco/agent-sandbox/commit/f35b4fff674193a959e34293ef3140617697b118))
+* add README, OpenAPI spec, backend guide, and examples ([68e72f7](https://github.com/superintelligenceco/agent-sandbox/commit/68e72f7b86f20ee9f0ff27abf3791c1fc4653b6e))
+
 ## [0.1.0] - 2026-09-30
 
 The first release: a self-hostable sandbox server for AI agents, with a Docker
