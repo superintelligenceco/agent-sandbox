@@ -16,20 +16,67 @@ agent-sandbox is a small Python server with a REST API, a Python SDK, and an MCP
 server. It runs on any Linux host with Docker, and your code never leaves your
 infrastructure.
 
-## Quickstart
+## Install
+
+Each release ships a multi-arch server image (`linux/amd64` and `linux/arm64`)
+on GHCR, a Docker Compose file that runs it, and a wheel and sdist for the Python
+SDK and the `agent-sandbox-mcp` command.
+
+| Artifact | Where |
+| --- | --- |
+| Server image | `ghcr.io/superintelligenceco/agent-sandbox:vX.Y.Z`, `:latest` (newest release), `:edge` (newest manual build of `main`) |
+| Compose file | `docker-compose.yml` on the [latest release](https://github.com/superintelligenceco/agent-sandbox/releases/latest) |
+| Python package | `agent_sandbox-X.Y.Z-py3-none-any.whl` and `agent_sandbox-X.Y.Z.tar.gz` on the release |
+| Checksums | `SHA256SUMS` on the release |
+
+### Run the server with Docker Compose
+
+You need a Linux host with Docker and the Compose plugin. Download the Compose
+file, set an API key, and start the server:
+
+```sh
+curl -fsSLO https://github.com/superintelligenceco/agent-sandbox/releases/latest/download/docker-compose.yml
+export AGENT_SANDBOX_API_KEY=$(openssl rand -hex 24)
+docker compose up -d
+```
+
+The API now listens on `http://localhost:8080`. Check it with
+`curl localhost:8080/healthz`. The Compose file pins the image of its release.
+Set `AGENT_SANDBOX_VERSION` to run another tag, `AGENT_SANDBOX_PORT` to change
+the host port, and `AGENT_SANDBOX_DEFAULT_IMAGE` to change the sandbox image.
+Stop the server and delete its data with `docker compose down -v`.
+
+To run the image without Compose:
+
+```sh
+docker run -d --name agent-sandbox -u 0:0 -p 127.0.0.1:8080:8080 \
+  -v /var/run/docker.sock:/var/run/docker.sock -v agent-sandbox-data:/data \
+  -e AGENT_SANDBOX_API_KEYS="$AGENT_SANDBOX_API_KEY" \
+  ghcr.io/superintelligenceco/agent-sandbox:latest
+```
+
+### Install the Python SDK and MCP server
+
+Install the wheel from a release, replacing `X.Y.Z` with the version:
+
+```sh
+pip install "agent-sandbox[mcp] @ https://github.com/superintelligenceco/agent-sandbox/releases/download/vX.Y.Z/agent_sandbox-X.Y.Z-py3-none-any.whl"
+agent-sandbox-mcp   # MCP server over stdio
+```
+
+Leave out `[mcp]` if you only need the SDK, which depends on `httpx` alone.
+
+### Build from source
 
 ```sh
 git clone https://github.com/superintelligenceco/agent-sandbox && cd agent-sandbox
 export AGENT_SANDBOX_API_KEY=$(openssl rand -hex 24)
-docker compose up -d --build
+docker compose -f docker-compose.yml -f docker-compose.build.yml up -d --build
 ```
-
-The API now listens on `http://localhost:8080`. Check it with
-`curl localhost:8080/healthz`.
 
 ## See it work
 
-This session is a verbatim capture from the Compose stack above, with `$API` set
+This session is a verbatim capture from a Compose stack, with `$API` set
 to `http://localhost:8080/v1`.
 
 ```console
@@ -83,7 +130,7 @@ $ sb -X DELETE -o /dev/null -w "%{http_code}\n" $API/sandboxes/$SB
 ### The same thing from Python
 
 ```sh
-pip install "agent-sandbox @ git+https://github.com/superintelligenceco/agent-sandbox"
+pip install "$(ls agent_sandbox-*.whl)"   # see Install
 export AGENT_SANDBOX_URL=http://localhost:8080
 ```
 
@@ -120,12 +167,8 @@ the results.
 
 ### From an MCP client
 
-Install the `mcp` extra and point your MCP client at the `agent-sandbox-mcp`
-command. It speaks MCP over stdio.
-
-```sh
-pip install "agent-sandbox[mcp] @ git+https://github.com/superintelligenceco/agent-sandbox"
-```
+Install the wheel with the `mcp` extra (see [Install](#install)) and point your
+MCP client at the `agent-sandbox-mcp` command. It speaks MCP over stdio.
 
 ```json
 {

@@ -56,14 +56,41 @@ agent-sandbox openapi -o docs/openapi.json
 
 ## Commit messages
 
-Use [Conventional Commits](https://www.conventionalcommits.org/). The release
-workflow reads them to build the changelog and pick the next version.
+Use [Conventional Commits](https://www.conventionalcommits.org/). They keep the
+history readable and make the changelog easy to write.
 
 ```text
 feat(api): add a route to extend every sandbox of a key
 fix(docker): kill the process group when an exec times out
 docs: explain the snapshot size limit
 ```
+
+## Cut a release
+
+Releases come from tags. The `Release` workflow (`.github/workflows/release.yml`)
+runs when you push a `v*` tag. It builds the wheel and sdist, pushes the
+`linux/amd64` and `linux/arm64` image to GHCR as `vX.Y.Z` and `latest`,
+smoke-tests the pushed image with the Compose file, and then creates the GitHub
+Release for the tag (if it doesn't exist) and attaches the wheel, sdist,
+`docker-compose.yml` pinned to `vX.Y.Z`, and `SHA256SUMS`.
+
+1. Set `__version__` in `src/agent_sandbox/__init__.py` to the new version. The
+   workflow fails if the tag and the version differ.
+2. Move the `Unreleased` entries in `CHANGELOG.md` under the new version.
+3. Commit, then tag and push:
+
+   ```sh
+   git tag -a v0.2.0 -m v0.2.0
+   git push origin v0.2.0
+   ```
+
+To test the pipeline without a release, run it by hand with
+`gh workflow run release.yml --ref main`. A manual run pushes the image as
+`edge` and keeps the files as run artifacts.
+
+The project doesn't use release-please: with the default `GITHUB_TOKEN`, it can't
+open pull requests in this organization, and releases it creates don't trigger
+other workflows.
 
 ## Add a backend
 
