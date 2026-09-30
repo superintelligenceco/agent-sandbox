@@ -1,0 +1,6 @@
+# Builds the server image from this checkout instead of pulling it from GHCR.
+#   docker compose -f docker-compose.yml -f docker-compose.build.yml up -d --build
+services:
+  agent-sandbox:
+    build: .
+    image: agent-sandbox:local

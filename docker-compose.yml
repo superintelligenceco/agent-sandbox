@@ -1,14 +1,17 @@
-# Quickstart:
+# Install:
+#   curl -fsSLO https://github.com/superintelligenceco/agent-sandbox/releases/latest/download/docker-compose.yml
 #   export AGENT_SANDBOX_API_KEY=$(openssl rand -hex 24)
-#   docker compose up -d --build
+#   docker compose up -d
+#
+# To build the image from a source checkout instead of pulling it, add the
+# build override: docker compose -f docker-compose.yml -f docker-compose.build.yml up -d --build
 #
 # The server drives the host's Docker daemon through its socket, so it runs as
 # root inside its own container. Anyone who controls this server controls the
 # Docker host. Keep the port on localhost or behind TLS and authentication.
 services:
   agent-sandbox:
-    build: .
-    image: agent-sandbox:local
+    image: ghcr.io/superintelligenceco/agent-sandbox:${AGENT_SANDBOX_VERSION:-latest}
     user: "0:0"
     restart: unless-stopped
     ports:
