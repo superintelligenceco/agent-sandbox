@@ -1,0 +1,11 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "packages": {
+    ".": {
+      "release-type": "python",
+      "package-name": "agent-sandbox",
+      "changelog-path": "CHANGELOG.md",
+      "extra-files": ["src/agent_sandbox/__init__.py"]
+    }
+  }
+}

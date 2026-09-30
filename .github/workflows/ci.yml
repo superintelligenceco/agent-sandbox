@@ -1,0 +1,117 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  lint:
+    name: Lint, format, and typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+      - run: python -m pip install -e ".[dev]"
+      - run: ruff check .
+      - run: ruff format --check .
+      - run: mypy
+      - name: Check that docs/openapi.json is current
+        run: |
+          agent-sandbox openapi -o /tmp/openapi.json
+          diff -u docs/openapi.json /tmp/openapi.json
+
+  unit:
+    name: Unit tests (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+          cache-dependency-path: pyproject.toml
+      - run: python -m pip install -e ".[dev]"
+      - run: pytest tests/unit
+
+  integration:
+    name: Docker integration tests (${{ matrix.image }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        image: ["alpine:3.20", "debian:bookworm-slim"]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+      - run: python -m pip install -e ".[dev]"
+      - run: docker pull "${{ matrix.image }}"
+      - run: pytest tests/integration -m docker
+        env:
+          AGENT_SANDBOX_TEST_IMAGE: ${{ matrix.image }}
+      - name: Check that the tests left nothing behind
+        if: always()
+        run: |
+          test -z "$(docker ps -aq --filter label=io.agent-sandbox.managed=true)"
+          test -z "$(docker volume ls -q --filter label=io.agent-sandbox.managed=true)"
+
+  compose:
+    name: Docker Compose smoke test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Start the stack
+        run: docker compose up -d --build --wait
+        env:
+          AGENT_SANDBOX_API_KEY: ci-only-key-0123456789abcdef
+          AGENT_SANDBOX_DEFAULT_IMAGE: alpine:3.20
+      - name: Create, exec, snapshot, roll back, destroy
+        env:
+          KEY: ci-only-key-0123456789abcdef
+        run: |
+          set -euo pipefail
+          api() { curl -sf -H "Authorization: Bearer $KEY" -H "Content-Type: application/json" "$@"; }
+          SB=$(api -X POST localhost:8080/v1/sandboxes -d '{}' | jq -r .id)
+          api -X POST "localhost:8080/v1/sandboxes/$SB/exec" -d '{"command": "echo ok > f"}' | jq -e '.exit_code == 0'
+          SNAP=$(api -X POST "localhost:8080/v1/sandboxes/$SB/snapshots" -d '{}' | jq -r .id)
+          api -X POST "localhost:8080/v1/sandboxes/$SB/exec" -d '{"command": "rm f"}' | jq -e '.exit_code == 0'
+          api -X POST "localhost:8080/v1/sandboxes/$SB/rollback" -d "{\"snapshot_id\": \"$SNAP\"}" > /dev/null
+          api -X POST "localhost:8080/v1/sandboxes/$SB/exec" -d '{"command": "cat f"}' | jq -e '.stdout == "ok\n"'
+          api -X DELETE "localhost:8080/v1/sandboxes/$SB"
+      - name: Show logs
+        if: failure()
+        run: docker compose logs
+        env:
+          AGENT_SANDBOX_API_KEY: unused-0123456789abcdef
+      - name: Tear down
+        if: always()
+        run: docker compose down -v
+        env:
+          AGENT_SANDBOX_API_KEY: unused-0123456789abcdef
