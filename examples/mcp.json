@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "agent-sandbox": {
+      "command": "agent-sandbox-mcp",
+      "env": {
+        "AGENT_SANDBOX_URL": "http://localhost:8080",
+        "AGENT_SANDBOX_API_KEY": "replace-with-your-key"
+      }
+    }
+  }
+}
