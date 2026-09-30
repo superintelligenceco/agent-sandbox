@@ -3,7 +3,7 @@ requires = ["hatchling>=1.25"]
 build-backend = "hatchling.build"
 
 [project]
-name = "agent-sandbox"
+name = "sic-agent-sandbox"
 dynamic = ["version"]
 description = "Self-hostable disposable sandboxes for AI agents, with snapshot, rollback, and fork."
 readme = "README.md"
@@ -35,7 +35,7 @@ server = [
 ]
 mcp = ["mcp>=2.0,<3"]
 dev = [
-  "agent-sandbox[server,mcp]",
+  "sic-agent-sandbox[server,mcp]",
   "build>=1.2",
   "hypothesis>=6.100",
   "mypy>=1.11",
