@@ -58,5 +58,5 @@ with cosign keyless signing:
 
 ```sh
 gh attestation verify agent-sandbox-linux-x86_64 -R superintelligenceco/agent-sandbox
-gh attestation verify oci://ghcr.io/superintelligenceco/agent-sandbox:v0.2.0 -R superintelligenceco/agent-sandbox
+gh attestation verify oci://ghcr.io/superintelligenceco/agent-sandbox:v0.2.1 -R superintelligenceco/agent-sandbox
 ```

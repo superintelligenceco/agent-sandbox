@@ -92,11 +92,25 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
+      - if: runner.os != 'Linux'
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
           python-version: "3.12"
-      - run: python -m pip install ".[server]" pyinstaller==6.22.3
-      - run: sh scripts/build_executable.sh
+      - name: Build the executable
+        if: runner.os != 'Linux'
+        run: |
+          python -m pip install ".[server]" pyinstaller==6.22.3
+          sh scripts/build_executable.sh
+      # Build on Debian 11 (glibc 2.31) so the executable also starts on older
+      # distributions such as RHEL 9 and Ubuntu 22.04. A newer builder links
+      # against newer glibc symbols and fails to start on those hosts.
+      - name: Build the executable against an older glibc
+        if: runner.os == 'Linux'
+        run: |
+          docker run --rm -v "$PWD:/src" -w /src \
+            python:3.12-bullseye@sha256:7cc929040c5e8cf6036c5099d62a83708427c131fb7a7c965b5ba51e995eea1c \
+            sh -c 'python -m pip install ".[server]" pyinstaller==6.22.3 && sh scripts/build_executable.sh'
+          sudo chown -R "$(id -u):$(id -g)" dist-exe build 2>/dev/null || true
       - name: Rename the executable
         env:
           ASSET: ${{ matrix.asset }}

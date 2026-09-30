@@ -15,7 +15,7 @@ Pick one of these options.
     AGENT_SANDBOX_API_KEYS=$AGENT_SANDBOX_API_KEY agent-sandbox serve
     ```
 
-    Set `AGENT_SANDBOX_VERSION=v0.2.0` before `sh` to pin a release. Your user
+    Set `AGENT_SANDBOX_VERSION=v0.2.1` before `sh` to pin a release. Your user
     needs access to the Docker socket.
 
 === "Docker Compose"

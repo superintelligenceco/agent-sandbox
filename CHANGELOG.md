@@ -6,6 +6,13 @@ project uses [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-09-30
+
+### Fixed
+
+- The Linux executables start on hosts with glibc older than 2.38, such as
+  RHEL 9 and Ubuntu 22.04. The release builds them on Debian 11.
+
 ## [0.2.0] - 2026-09-30
 
 This release makes the server something you download and run: a signed
@@ -86,6 +93,7 @@ backend, a Python SDK, and an MCP server.
 - Snapshots capture `/workspace` only, not memory, processes, or `/tmp`.
 - Every API key can see and control every sandbox.
 
-[Unreleased]: https://github.com/superintelligenceco/agent-sandbox/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/superintelligenceco/agent-sandbox/compare/v0.2.1...HEAD
+[0.2.1]: https://github.com/superintelligenceco/agent-sandbox/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/superintelligenceco/agent-sandbox/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/superintelligenceco/agent-sandbox/releases/tag/v0.1.0

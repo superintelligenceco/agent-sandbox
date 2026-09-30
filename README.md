@@ -34,7 +34,7 @@ curl -fsSL https://raw.githubusercontent.com/superintelligenceco/agent-sandbox/m
 ```
 
 The script checks the download against the release's `SHA256SUMS` and installs
-it into `~/.local/bin`. Set `AGENT_SANDBOX_VERSION=v0.2.0` to pin a release, or
+it into `~/.local/bin`. Set `AGENT_SANDBOX_VERSION=v0.2.1` to pin a release, or
 `AGENT_SANDBOX_INSTALL=compose` to download the Compose file, write an API key,
 and start the server image instead. Then start the server with
 `AGENT_SANDBOX_API_KEYS=$(openssl rand -hex 24) agent-sandbox serve`. Your user
