@@ -99,8 +99,12 @@ jobs:
         env:
           REF: ${{ env.IMAGE }}@${{ steps.build.outputs.digest }}
         run: |
-          docker run --rm --platform linux/amd64 "$REF" --version
-          docker run --rm --platform linux/arm64 "$REF" --version
+          # Remove the image between runs: Docker can't hold two platforms of
+          # one manifest-list digest at the same time.
+          for platform in linux/amd64 linux/arm64; do
+            docker run --rm --platform "$platform" "$REF" --version
+            docker image rm "$REF"
+          done
 
   compose:
     name: Smoke-test the pushed image with Docker Compose
