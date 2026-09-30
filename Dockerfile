@@ -1,13 +1,13 @@
 # syntax=docker/dockerfile:1
 
-FROM python:3.12-slim AS build
+FROM python:3.14-slim AS build
 WORKDIR /src
 RUN pip install --no-cache-dir build==1.2.2
 COPY pyproject.toml README.md LICENSE ./
 COPY src ./src
 RUN python -m build --wheel --outdir /dist
 
-FROM python:3.12-slim
+FROM python:3.14-slim
 LABEL org.opencontainers.image.title="agent-sandbox" \
       org.opencontainers.image.description="Self-hostable disposable sandboxes for AI agents, with snapshot, rollback, and fork." \
       org.opencontainers.image.source="https://github.com/superintelligenceco/agent-sandbox" \
