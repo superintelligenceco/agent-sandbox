@@ -1,0 +1,4 @@
+* text=auto eol=lf
+*.png binary
+*.tar binary
+docs/openapi.json linguist-generated=true
