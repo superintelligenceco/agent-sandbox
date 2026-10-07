@@ -58,7 +58,7 @@ jobs:
             '{"jsonrpc":"2.0","id":2,"method":"tools/list"}' \
             | timeout 30 /tmp/venv/bin/agent-sandbox-mcp | tail -n 1 | jq -e '.result.tools | length == 10'
       - name: Generate the SBOM of the Python package
-        uses: anchore/sbom-action@3ad7283483fc7af8ff2b4ea19663c2d5ca935e26 # v0.24.2
+        uses: anchore/sbom-action@66cbf4bc1f1c0d2edc94016e65bc221b6bb0ad6c # v0.24.3
         with:
           path: dist
           format: spdx-json
@@ -213,7 +213,7 @@ jobs:
           push-to-registry: true
       - run: mkdir -p sbom
       - name: Generate the SBOM of the image
-        uses: anchore/sbom-action@3ad7283483fc7af8ff2b4ea19663c2d5ca935e26 # v0.24.2
+        uses: anchore/sbom-action@66cbf4bc1f1c0d2edc94016e65bc221b6bb0ad6c # v0.24.3
         with:
           image: ${{ env.IMAGE }}@${{ steps.build.outputs.digest }}
           registry-username: ${{ github.actor }}
